@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>InboxIQ</title>
+
+<style>
+
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:Inter,Arial,sans-serif;
+}
+
+body{
+background:#f3f6fb;
+padding:20px;
+color:#1f2937;
+}
+
+.header{
+background:white;
+padding:20px;
+border-radius:14px;
+margin-bottom:20px;
+box-shadow:0 4px 12px rgba(0,0,0,.06);
+}
+
+.header h1{
+color:#2563eb;
+}
+
+.layout{
+display:grid;
+grid-template-columns:320px 1fr;
+gap:20px;
+}
+
+.card{
+background:white;
+border-radius:14px;
+padding:20px;
+box-shadow:0 4px 12px rgba(0,0,0,.06);
+}
+
+.inbox-item{
+padding:14px;
+border:1px solid #e5e7eb;
+border-radius:10px;
+margin-bottom:10px;
+cursor:pointer;
+transition:.2s;
+}
+
+.inbox-item:hover{
+background:#eef4ff;
+border-color:#2563eb;
+}
+
+.email-subject{
+font-weight:600;
+margin-bottom:4px;
+}
+
+.email-preview{
+font-size:13px;
+color:#6b7280;
+}
+
+.email-content{
+background:#f9fafb;
+padding:15px;
+border-radius:10px;
+margin-top:15px;
+white-space:pre-wrap;
+min-height:220px;
+}
+
+button{
+background:#2563eb;
+color:white;
+border:none;
+padding:12px 20px;
+border-radius:10px;
+cursor:pointer;
+margin-top:15px;
+}
+
+button:hover{
+background:#1d4ed8;
+}
+
+.analysis{
+margin-top:20px;
+display:none;
+}
+
+.grid{
+display:grid;
+grid-template-columns:1fr 1fr;
+gap:15px;
+margin-top:15px;
+}
+
+.result{
+background:#f9fafb;
+padding:15px;
+border-radius:10px;
+}
+
+.result h3{
+margin-bottom:8px;
+color:#2563eb;
+}
+
+.priority-critical{
+color:#991b1b;
+font-weight:bold;
+}
+
+.priority-high{
+color:#dc2626;
+font-weight:bold;
+}
+
+.priority-medium{
+color:#d97706;
+font-weight:bold;
+}
+
+.priority-low{
+color:#16a34a;
+font-weight:bold;
+}
+
+.reply{
+margin-top:15px;
+padding:15px;
+background:#eef4ff;
+border-radius:10px;
+}
+
+ul{
+margin-left:20px;
+}
+
+@media(max-width:900px){
+
+.layout{
+grid-template-columns:1fr;
+}
+
+.grid{
+grid-template-columns:1fr;
+}
+
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="header">
+<h1>📧 InboxIQ</h1>
+<p>AI-Powered Email Intelligence</p>
+</div>
+
+<div class="layout">
+
+<div class="card">
+
+<h2>Inbox</h2>
+
+<br>
+
+<div class="inbox-item" onclick="loadEmail(1)">
+<div class="email-subject">🔴 Internship Interview</div>
+<div class="email-preview">Confirm within 48 hours...</div>
+</div>
+
+<div class="inbox-item" onclick="loadEmail(2)">
+<div class="email-subject">🟠 AP CSA Final Project</div>
+<div class="email-preview">Project due Friday...</div>
+</div>
+
+<div class="inbox-item" onclick="loadEmail(3)">
+<div class="email-subject">🔴 Missing Transcript</div>
+<div class="email-preview">Application incomplete...</div>
+</div>
+
+<div class="inbox-item" onclick="loadEmail(4)">
+<div class="email-subject">🟢 Birthday Invitation</div>
+<div class="email-preview">Party next weekend...</div>
+</div>
+
+</div>
+
+<div class="card">
+
+<h2 id="subject">Select an Email</h2>
+
+<div class="email-content" id="emailContent">
+Click an email from the inbox.
+</div>
+
+<button onclick="analyzeEmail()">
+Analyze Email
+</button>
+
+<div class="analysis" id="analysis">
+
+<div class="grid">
+
+<div class="result">
+<h3>Category</h3>
+<p id="category"></p>
+</div>
+
+<div class="result">
+<h3>Priority</h3>
+<p id="priority"></p>
+</div>
+
+<div class="result">
+<h3>Reason</h3>
+<p id="reason"></p>
+</div>
+
+<div class="result">
+<h3>Deadline</h3>
+<p id="deadline"></p>
+</div>
+
+<div class="result">
+<h3>Summary</h3>
+<p id="summary"></p>
+</div>
+
+<div class="result">
+<h3>Confidence</h3>
+<p>94%</p>
+</div>
+
+</div>
+
+<div class="result" style="margin-top:15px;">
+<h3>Action Items</h3>
+<ul id="actions"></ul>
+</div>
+
+<div class="reply">
+<h3>Suggested Reply</h3>
+<p id="reply"></p>
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+<script>
+
+let currentEmail = "";
+
+function loadEmail(type){
+
+if(type===1){
+
+document.getElementById("subject").innerText =
+"Software Engineering Internship Interview";
+
+currentEmail =
+`Hello Adam,
+
+Thank you for applying.
+
+We would like to invite you to interview on July 8.
+
+Please confirm your availability within 48 hours.
+
+Failure to respond may result in your interview slot being offered to another applicant.
+
+Best,
+Recruiting Team`;
+
+}
+
+else if(type===2){
+
+document.getElementById("subject").innerText =
+"AP CSA Final Project";
+
+currentEmail =
+`Hi Adam,
+
+Your AP Computer Science final project is due Friday.
+
+You must submit:
+
+- GitHub Repository
+- Slides
+- Reflection Document
+
+Late submissions will receive a grade penalty.
+
+Thanks,
+Mrs. Johnson`;
+
+}
+
+else if(type===3){
+
+document.getElementById("subject").innerText =
+"Missing College Transcript";
+
+currentEmail =
+`Hello,
+
+Your college application is incomplete.
+
+Please submit your official transcript by Friday.
+
+Admissions Office`;
+
+}
+
+else{
+
+document.getElementById("subject").innerText =
+"Birthday Invitation";
+
+currentEmail =
+`Hey Adam,
+
+You're invited to my birthday party next weekend.
+
+Hope you can make it!`;
+
+}
+
+document.getElementById("emailContent").innerText =
+currentEmail;
+
+}
+
+function analyzeEmail(){
+
+if(currentEmail===""){
+alert("Select an email first.");
+return;
+}
+
+const email = currentEmail.toLowerCase();
+
+let category="Personal";
+let priority="Low";
+let deadline="None";
+let summary="";
+let reason="";
+let reply="";
+let actions=[];
+
+if(email.includes("interview")){
+
+category="Career";
+priority="Critical";
+deadline="48 Hours";
+
+reason="Interview opportunity with short response deadline.";
+
+summary="Recruiter requesting interview confirmation.";
+
+actions=[
+"Confirm interview",
+"Prepare interview",
+"Research company"
+];
+
+reply=
+"Thank you for the invitation. I am excited about the opportunity and would like to confirm my availability.";
+
+}
+
+else if(email.includes("project")){
+
+category="School";
+priority="High";
+deadline="Friday";
+
+reason="Required academic submission.";
+
+summary="Final project with multiple deliverables.";
+
+actions=[
+"Submit GitHub repository",
+"Submit slides",
+"Complete reflection"
+];
+
+reply=
+"Thank you for the reminder. I will ensure all materials are submitted before the deadline.";
+
+}
+
+else if(email.includes("transcript")){
+
+category="College Admissions";
+priority="High";
+deadline="Friday";
+
+reason="Application requires additional documents.";
+
+summary="Transcript needed to complete application.";
+
+actions=[
+"Request transcript",
+"Upload transcript",
+"Verify submission"
+];
+
+reply=
+"Thank you for the notification. I will submit the requested transcript as soon as possible.";
+
+}
+
+else{
+
+category="Personal";
+priority="Low";
+deadline="None";
+
+reason="Routine communication.";
+
+summary="Personal invitation.";
+
+actions=[
+"Read invitation",
+"Respond if attending"
+];
+
+reply=
+"Thank you for the invitation. I will let you know if I can attend.";
+
+}
+
+document.getElementById("category").innerText=category;
+document.getElementById("deadline").innerText=deadline;
+document.getElementById("summary").innerText=summary;
+document.getElementById("reason").innerText=reason;
+document.getElementById("reply").innerText=reply;
+
+const p=document.getElementById("priority");
+p.innerText=priority;
+p.className="";
+
+if(priority==="Critical"){
+p.classList.add("priority-critical");
+}
+else if(priority==="High"){
+p.classList.add("priority-high");
+}
+else if(priority==="Medium"){
+p.classList.add("priority-medium");
+}
+else{
+p.classList.add("priority-low");
+}
+
+const actionsList=document.getElementById("actions");
+actionsList.innerHTML="";
+
+actions.forEach(action=>{
+const li=document.createElement("li");
+li.innerText=action;
+actionsList.appendChild(li);
+});
+
+document.getElementById("analysis").style.display="block";
+
+}
+
+</script>
+
+</body>
+</html>
